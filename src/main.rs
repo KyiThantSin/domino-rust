@@ -52,15 +52,17 @@ fn main() {
     let mut domino_set_in_color: Vec<Domino> = Vec::new();
 
     for i in 0..=4 {
-        for j in 0..=i {
+        for j in 0..=4 {
             domino_set_in_number.push((i, j));
         }
     }
 
-    for domino in domino_set_in_number {
+    for domino in &domino_set_in_number {
         let (left, right) = (Domino::generate_color_code(domino.0),Domino::generate_color_code(domino.1));
         domino_set_in_color.push(Domino::new(left, right));
     }
 
     Domino::display_domino(&domino_set_in_color);
+    println!("length : {:?}", domino_set_in_color.len());
+    // println!("{:?}", domino_set_in_number);
 }
