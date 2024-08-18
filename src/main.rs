@@ -1,5 +1,6 @@
-#[derive(Debug)]
-#[derive(PartialEq)]
+use rand::Rng;
+
+#[derive(Debug, PartialEq)]
 enum Color {
     White,
     Blue,
@@ -35,7 +36,7 @@ impl Domino {
     }
 
     // check getting same domino tile
-    fn is_duplicate(first_item: &Domino, second_item:&Domino) -> bool {
+    fn is_duplicate(first_item: &Domino, second_item: &Domino) -> bool {
         first_item.left == second_item.left
     }
 
@@ -44,6 +45,11 @@ impl Domino {
     }
 }
 
+fn generate_random_number() {
+    let mut random = rand::thread_rng();
+    let number: i32 = random.gen_range(0..4);
+    println!("{}", &number);
+}
 fn main() {
     let first: Domino = Domino::new(
         Domino::generate_color_code(3),
@@ -56,4 +62,5 @@ fn main() {
     Domino::display_domino(&first);
     let same = Domino::is_duplicate(&first, &second);
     println!("{:?}", same);
+    generate_random_number();
 }
