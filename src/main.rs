@@ -34,7 +34,9 @@ impl Domino {
     }
 
     fn display_domino(dominos: &Vec<Domino>){
-        println!("{:?}", dominos)
+        for value in dominos.iter(){
+            println!("({:?}, {:?})", value.0, value.1)
+        }
     }
   
 }
@@ -54,7 +56,6 @@ fn main() {
             domino_set_in_number.push((i, j));
         }
     }
-    // println!("{:?}", domino_set_in_number);
 
     for domino in domino_set_in_number {
         let (left, right) = (Domino::generate_color_code(domino.0),Domino::generate_color_code(domino.1));
