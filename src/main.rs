@@ -8,20 +8,13 @@ enum Color {
     Red,
     Yellow,
 }
-
 #[derive(Debug)]
-struct Domino {
-    left: Color,
-    right: Color,
-}
+struct Domino(Color,Color);
 
 impl Domino {
     // create a new domino tile
     fn new(left: Color, right: Color) -> Self {
-        Self {
-            left: left,
-            right: right,
-        }
+        Self (left, right)
     }
 
     // get color from random no
@@ -35,32 +28,38 @@ impl Domino {
         }
     }
 
-    // check getting same domino tile
-    fn is_duplicate(first_item: &Domino, second_item: &Domino) -> bool {
-        first_item.left == second_item.left
+    // check whether player gets same domino or not
+    fn is_duplicate(first_item: i32, second_item: i32) -> bool {
+        first_item == second_item
     }
 
-    fn display_domino(&self) {
-        println!("{:?}", self)
+    fn display_domino(dominos: &Vec<Domino>){
+        println!("{:?}", dominos)
     }
+  
 }
 
 fn generate_random_number() {
-    let mut random = rand::thread_rng();
+    let mut random: rand::rngs::ThreadRng = rand::thread_rng();
     let number: i32 = random.gen_range(0..4);
     println!("{}", &number);
 }
+
 fn main() {
-    let first: Domino = Domino::new(
-        Domino::generate_color_code(3),
-        Domino::generate_color_code(2),
-    );
-    let second: Domino = Domino::new(
-        Domino::generate_color_code(3),
-        Domino::generate_color_code(2),
-    );
-    Domino::display_domino(&first);
-    let same = Domino::is_duplicate(&first, &second);
-    println!("{:?}", same);
-    generate_random_number();
+    let mut domino_set_in_number: Vec<(i32,i32)> = Vec::new();
+    let mut domino_set_in_color: Vec<Domino> = Vec::new();
+
+    for i in 0..=4 {
+        for j in 0..=i {
+            domino_set_in_number.push((i, j));
+        }
+    }
+    // println!("{:?}", domino_set_in_number);
+
+    for domino in domino_set_in_number {
+        let (left, right) = (Domino::generate_color_code(domino.0),Domino::generate_color_code(domino.1));
+        domino_set_in_color.push(Domino::new(left, right));
+    }
+
+    Domino::display_domino(&domino_set_in_color);
 }
