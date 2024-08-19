@@ -52,7 +52,7 @@ impl Domino {
 
     fn split_hand(shuffled_dominos: &[Domino], mid_point: usize) -> (Vec<Domino>, Vec<Domino>) {
         let player_hand: Vec<Domino> = shuffled_dominos[..mid_point].to_vec();
-        let computer_hand = shuffled_dominos[mid_point..].to_vec();
+        let computer_hand:Vec<Domino> = shuffled_dominos[mid_point..].to_vec();
         (player_hand, computer_hand)
     }
 
@@ -95,7 +95,7 @@ fn main() {
 
     //assign 
     let player: Player = Player::new(player_slice);
-    let computer: Computer = Computer { dominos: computer_slice };
+    let computer: Computer = Computer::new(computer_slice);
 
     println!("Player's hand:");
     Domino::display_domino(&player.dominos);
