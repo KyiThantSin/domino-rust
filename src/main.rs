@@ -1,4 +1,4 @@
-use rand::Rng;
+use rand::seq::SliceRandom;
 
 #[derive(Debug, PartialEq)]
 enum Color {
@@ -28,23 +28,13 @@ impl Domino {
         }
     }
 
-    // check whether player gets same domino or not
-    fn is_duplicate(first_item: i32, second_item: i32) -> bool {
-        first_item == second_item
-    }
-
     fn display_domino(dominos: &Vec<Domino>){
+        println!("{:?}", dominos);
         for value in dominos.iter(){
             println!("({:?}, {:?})", value.0, value.1)
         }
     }
   
-}
-
-fn generate_random_number() {
-    let mut random: rand::rngs::ThreadRng = rand::thread_rng();
-    let number: i32 = random.gen_range(0..4);
-    println!("{}", &number);
 }
 
 fn main() {
@@ -62,7 +52,9 @@ fn main() {
         domino_set_in_color.push(Domino::new(left, right));
     }
 
-    Domino::display_domino(&domino_set_in_color);
-    println!("length : {:?}", domino_set_in_color.len());
-    // println!("{:?}", domino_set_in_number);
+    // shuffle
+    let mut random = rand::thread_rng();
+    domino_set_in_color.shuffle(&mut random);
+    // Domino::display_domino(&domino_set_in_color);
+    println!(" shuffled {:?}", domino_set_in_color);
 }
