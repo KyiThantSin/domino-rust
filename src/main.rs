@@ -58,7 +58,6 @@ impl Player {
     fn new(dominos: Vec<Domino>) -> Self {
         Self { dominos: dominos }
     }
-
     //remove by choice
     fn remove_player_domino(&mut self, number: usize) -> Option<Domino> {
         if number < self.dominos.len() {
@@ -147,7 +146,14 @@ fn main() {
     domino_set_in_color.shuffle(&mut random);
 
     let mid_point: usize = (domino_set_in_color.len() - 1) / 2;
-    let (player_slice, computer_slice) = Domino::split_hand(&domino_set_in_color, mid_point);
+    let (player_slice, mut computer_slice) = Domino::split_hand(&domino_set_in_color, mid_point);
+    
+    //remove the last one as a starting 
+    let starting_domino = if !computer_slice.is_empty() {
+        computer_slice.pop()
+    } else {
+        None
+    };
 
     //assign
     let player: Player = Player::new(player_slice);
@@ -162,5 +168,6 @@ fn main() {
     Domino::display_domino(&game.computer.dominos);
     println!("Computer Count: {:?}", Domino::count(&game.computer.dominos));
     println!("Game State: {:?}", &game.state);
+    println!("Starting Domino: {:?}", &starting_domino.unwrap());
 
 }
