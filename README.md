@@ -1,5 +1,5 @@
 # Mini Domino Game in Rust
-A simple command-line Domino game implemented in Rust for a KMITL pre-midterm project. Play against a computer by matching dominoes based on color.
+A simple command-line Domino game implemented in Rust for a KMITL University pre-midterm project. Play against a computer by matching dominoes based on color.
 
 ## Features
 - Game Setup: Randomized dominoes dealt to player and computer.
