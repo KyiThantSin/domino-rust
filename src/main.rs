@@ -22,11 +22,11 @@ struct Game {
     player: Player,
     computer: Computer,
     state: GameState,
-    starting_domino: Domino
+    starting_domino: Domino,
 }
 
 impl Game {
-    fn new(player: Player, computer: Computer,starting_domino: Domino) -> Self {
+    fn new(player: Player, computer: Computer, starting_domino: Domino) -> Self {
         Self {
             player,
             computer,
@@ -71,7 +71,10 @@ impl Game {
         let computer = Computer::new(computer_slice);
         let game = Game::new(player, computer, starting_domino);
 
-        println!("Starting Domino: {:?}", (&game.starting_domino.0, &game.starting_domino.1));
+        println!(
+            "Starting Domino: {:?}",
+            (&game.starting_domino.0, &game.starting_domino.1)
+        );
 
         game
     }
@@ -79,7 +82,7 @@ impl Game {
     fn is_valid_move(&self, domino: &Domino) -> bool {
         domino.0 == self.starting_domino.1 || domino.1 == self.starting_domino.1
     }
-    
+
     fn play_turn(&mut self) {
         self.choose_domino();
         self.computer_choose_domino();
@@ -92,7 +95,10 @@ impl Game {
         loop {
             println!("Player's Box:");
             Domino::display_domino(&self.player.dominos);
-            println!("You have {:?} dominoes left.", Domino::count(&self.player.dominos));
+            println!(
+                "You have {:?} dominoes left.",
+                Domino::count(&self.player.dominos)
+            );
             println!("Your turn. Choose a domino to play:");
 
             let mut player_input = String::new();
@@ -107,14 +113,29 @@ impl Game {
                     continue;
                 }
             };
-            
+
             if chosen_index < self.player.dominos.len() {
                 let chosen_domino: Domino = self.player.dominos.remove(chosen_index);
+                // for user has no valid case
+                let mut valid_dominos = Vec::new();
+
+                for domino in &self.player.dominos {
+                    if self.is_valid_move(domino) {
+                        valid_dominos.push(domino.clone());
+                    }
+                }
+
+                if valid_dominos.is_empty() {
+                    println!("You have no valid moves.");
+                    self.state = GameState::ComputerWon;
+                    return;
+                }
                 if self.is_valid_move(&chosen_domino) {
                     println!("You Choose: {:?}", chosen_domino);
                     self.starting_domino = chosen_domino;
                     println!(
-                        "Starting Domino: {:?}", (&self.starting_domino.0,&self.starting_domino.1)
+                        "Starting Domino: {:?}",
+                        (&self.starting_domino.0, &self.starting_domino.1)
                     );
                     break;
                 } else {
@@ -122,7 +143,8 @@ impl Game {
                         "Invalid move. The domino doesn't match the starting domino. Try again."
                     );
                     println!(
-                        "Starting Domino: {:?}", (&self.starting_domino.0,&self.starting_domino.1)
+                        "Starting Domino: {:?}",
+                        (&self.starting_domino.0, &self.starting_domino.1)
                     );
                     self.player.dominos.insert(chosen_index, chosen_domino);
                 }
@@ -141,26 +163,33 @@ impl Game {
                     valid_dominos.push(domino.clone());
                 }
             }
-        
+
             if valid_dominos.is_empty() {
                 println!("Computer has no valid moves.");
-                GameState::PlayerWon;
+                self.state = GameState::PlayerWon;
                 return;
-            }     
+            }
             // println!("valid {:?}", &valid_dominos);
             let mut random = rand::thread_rng();
             let random_index: usize = rand::Rng::gen_range(&mut random, 0..valid_dominos.len());
-            
+
             //remove from computer
             self.computer.dominos.remove(random_index);
-            
+
             //get from valid set
             let chosen_domino: &Domino = valid_dominos.get(random_index).unwrap();
             self.starting_domino = chosen_domino.clone();
-            println!("Computer Choose:  {:?}", (&chosen_domino.0, &chosen_domino.1));
-            println!("Computer have total: {:?} dominos left", Domino::count(&self.computer.dominos));
             println!(
-                "Starting Domino: {:?}", (&self.starting_domino.0,&self.starting_domino.1)
+                "Computer Choose:  {:?}",
+                (&chosen_domino.0, &chosen_domino.1)
+            );
+            println!(
+                "Computer have total: {:?} dominos left",
+                Domino::count(&self.computer.dominos)
+            );
+            println!(
+                "Starting Domino: {:?}",
+                (&self.starting_domino.0, &self.starting_domino.1)
             );
         }
     }
