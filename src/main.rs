@@ -22,14 +22,16 @@ struct Game {
     player: Player,
     computer: Computer,
     state: GameState,
+    starting_domino: Domino
 }
 
 impl Game {
-    fn new(player: Player, computer: Computer) -> Self {
+    fn new(player: Player, computer: Computer,starting_domino: Domino) -> Self {
         Self {
             player,
             computer,
             state: GameState::Playing,
+            starting_domino,
         }
     }
 
@@ -37,7 +39,7 @@ impl Game {
         let mut domino_set_in_number: Vec<(i32, i32)> = Vec::new();
         let mut domino_set_in_color: Vec<Domino> = Vec::new();
 
-        // domino set
+        // Create domino set
         for i in 0..=4 {
             for j in 0..=4 {
                 domino_set_in_number.push((i, j));
@@ -53,7 +55,7 @@ impl Game {
             domino_set_in_color.push(Domino::new(left, right));
         }
 
-        // Shuffle the dominos
+        // Shuffle
         let mut random = rand::thread_rng();
         domino_set_in_color.shuffle(&mut random);
 
@@ -61,24 +63,36 @@ impl Game {
         let (player_slice, mut computer_slice) =
             Domino::split_hand(&domino_set_in_color, mid_point);
 
-        // Remove the last domino as the starting domino
+        // starting domino
         let starting_domino = computer_slice.pop().unwrap();
 
-        // Assign 
-        let player: Player = Player::new(player_slice);
-        let computer: Computer = Computer::new(computer_slice);
-        let game = Game::new(player, computer);
+        // Initialize
+        let player = Player::new(player_slice);
+        let computer = Computer::new(computer_slice);
+        let game = Game::new(player, computer, starting_domino);
 
-        println!("Starting Domino: {:?}", (starting_domino.0,starting_domino.1));
+        println!("Starting Domino: {:?}", (&game.starting_domino.0, &game.starting_domino.1));
 
         game
     }
+
+    fn is_valid_move(&self, domino: &Domino) -> bool {
+        domino.0 == self.starting_domino.1 || domino.1 == self.starting_domino.1
+    }
     
+    fn play_turn(&mut self) {
+        self.choose_domino();
+        self.computer_choose_domino();
+
+        self.state = self.check_victory_conditions();
+        self.end_game();
+    }
+
     fn choose_domino(&mut self) {
         loop {
-            println!("Your Doninoes:");
+            println!("Player's Box:");
             Domino::display_domino(&self.player.dominos);
-            println!("You have total {:?} dominoes left", Domino::count(&self.player.dominos));
+            println!("You have {:?} dominoes left.", Domino::count(&self.player.dominos));
             println!("Your turn. Choose a domino to play:");
 
             let mut player_input = String::new();
@@ -87,7 +101,7 @@ impl Game {
                 .expect("Failed to read input");
 
             let chosen_index: usize = match player_input.trim().parse::<usize>() {
-                Ok(num) => num - 1, // users enter no starting from 1
+                Ok(num) => num - 1, // users enter number starting from 1
                 Err(_) => {
                     println!("Invalid input. Please enter a valid number.");
                     continue;
@@ -95,12 +109,35 @@ impl Game {
             };
             
             if chosen_index < self.player.dominos.len() {
-                let chosen_domino = self.player.remove_player_domino(chosen_index).unwrap();
-                println!("You Choose: {:?}", (chosen_domino.0, chosen_domino.1));
-                break;
+                let chosen_domino = self.player.dominos.remove(chosen_index);
+                if self.is_valid_move(&chosen_domino) {
+                    println!("You played: {:?}", chosen_domino);
+                    self.starting_domino = chosen_domino;
+                    println!(
+                        "Starting Domino: {:?}", (&self.starting_domino.0,&self.starting_domino.1)
+                    );
+                    break;
+                } else {
+                    println!(
+                        "Invalid move. The domino doesn't match the starting domino. Try again."
+                    );
+                    println!(
+                        "Starting Domino: {:?}", (&self.starting_domino.0,&self.starting_domino.1)
+                    );
+                    self.player.dominos.insert(chosen_index, chosen_domino);
+                }
             } else {
                 println!("Invalid move. Try again.");
             }
+        }
+    }
+
+    fn computer_choose_domino(&mut self) {
+        if !self.computer.dominos.is_empty() {
+            // let mut rng = rand::thread_rng();
+            // let chosen_index = rng.gen_range(0..self.computer.dominos.len());
+            // let chosen_domino = self.computer.remove_computer_domino(chosen_index).unwrap();
+            // println!("Computer played: {:?}", (chosen_domino.0, chosen_domino.1));
         }
     }
 
@@ -119,7 +156,7 @@ impl Game {
             GameState::PlayerWon => println!("Player wins!"),
             GameState::ComputerWon => println!("Computer wins!"),
             GameState::Draw => println!("The game is a draw!"),
-            GameState::Playing => println!("The game is still ongoing."),
+            GameState::Playing => (),
         }
     }
 }
@@ -218,11 +255,9 @@ fn main() {
     match user_choice {
         1 => {
             let mut game = Game::start_game();
-            game.choose_domino();
-
-            // println!("Computer's hand:");
-            // Domino::display_domino(&game.computer.dominos);
-            // println!("Computer Count: {:?}", Domino::count(&game.computer.dominos));
+            while game.state == GameState::Playing {
+                game.play_turn();
+            }
         }
         2 => {
             println!("Exiting the game.");
