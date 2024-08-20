@@ -100,12 +100,12 @@ impl Game {
                 Domino::count(&self.player.dominos)
             );
             println!("Your turn. Choose a domino to play:");
-
+    
             let mut player_input = String::new();
             io::stdin()
                 .read_line(&mut player_input)
                 .expect("Failed to read input");
-
+    
             let chosen_index: usize = match player_input.trim().parse::<usize>() {
                 Ok(num) => num - 1, // users enter number starting from 1
                 Err(_) => {
@@ -113,26 +113,28 @@ impl Game {
                     continue;
                 }
             };
-
+    
             if chosen_index < self.player.dominos.len() {
                 let chosen_domino: Domino = self.player.dominos.remove(chosen_index);
-                // for user has no valid case
                 let mut valid_dominos = Vec::new();
-
+    
+                // Find valid moves
                 for domino in &self.player.dominos {
                     if self.is_valid_move(domino) {
                         valid_dominos.push(domino.clone());
                     }
                 }
-
-                if valid_dominos.is_empty() {
-                    println!("You have no valid moves.");
+    
+                // Check valid moves remaining
+                if valid_dominos.is_empty() && !self.is_valid_move(&chosen_domino) {
+                    println!("You have no valid dominos to choose.");
                     self.state = GameState::ComputerWon;
                     self.end_game();
                     return;
                 }
+    
                 if self.is_valid_move(&chosen_domino) {
-                    println!("You Choose: {:?}", chosen_domino);
+                    println!("You chose: {:?}", chosen_domino);
                     self.starting_domino = chosen_domino;
                     println!(
                         "Starting Domino: {:?}",
@@ -140,17 +142,16 @@ impl Game {
                     );
                     break;
                 } else {
-                    println!(
-                        "Invalid move. The domino doesn't match the starting domino. Try again."
-                    );
+                    println!("Invalid move. The domino doesn't match the starting domino. Try again.");
                     println!(
                         "Starting Domino: {:?}",
                         (&self.starting_domino.0, &self.starting_domino.1)
                     );
+                    // if move is invalid 
                     self.player.dominos.insert(chosen_index, chosen_domino);
                 }
             } else {
-                println!("Invalid move. Try again.");
+                println!("Invalid choice. Try again.");
                 println!(
                     "Starting Domino: {:?}",
                     (&self.starting_domino.0, &self.starting_domino.1)
@@ -158,7 +159,7 @@ impl Game {
             }
         }
     }
-
+    
     fn computer_choose_domino(&mut self) {
         if !self.computer.dominos.is_empty() {
             let mut valid_dominos = Vec::new();
@@ -170,7 +171,7 @@ impl Game {
             }
 
             if valid_dominos.is_empty() {
-                println!("Computer has no valid moves.");
+                println!("Computer has no valid Dominoes to choose.");
                 self.state = GameState::PlayerWon;
                 self.end_game();
                 return;
