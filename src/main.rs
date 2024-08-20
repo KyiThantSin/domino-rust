@@ -15,9 +15,7 @@ enum GameState {
     Playing,
     PlayerWon,
     ComputerWon,
-    Draw,
 }
-
 struct Game {
     player: Player,
     computer: Computer,
@@ -85,10 +83,12 @@ impl Game {
 
     fn play_turn(&mut self) {
         self.choose_domino();
+        if self.state != GameState::Playing {
+            return;
+        }
         self.computer_choose_domino();
 
         self.state = self.check_victory_conditions();
-        self.end_game();
     }
 
     fn choose_domino(&mut self) {
@@ -128,6 +128,7 @@ impl Game {
                 if valid_dominos.is_empty() {
                     println!("You have no valid moves.");
                     self.state = GameState::ComputerWon;
+                    self.end_game();
                     return;
                 }
                 if self.is_valid_move(&chosen_domino) {
@@ -150,6 +151,10 @@ impl Game {
                 }
             } else {
                 println!("Invalid move. Try again.");
+                println!(
+                    "Starting Domino: {:?}",
+                    (&self.starting_domino.0, &self.starting_domino.1)
+                );
             }
         }
     }
@@ -167,6 +172,7 @@ impl Game {
             if valid_dominos.is_empty() {
                 println!("Computer has no valid moves.");
                 self.state = GameState::PlayerWon;
+                self.end_game();
                 return;
             }
             // println!("valid {:?}", &valid_dominos);
@@ -206,10 +212,15 @@ impl Game {
 
     fn end_game(&self) {
         match &self.state {
-            GameState::PlayerWon => println!("Player wins!"),
-            GameState::ComputerWon => println!("Computer wins!"),
-            GameState::Draw => println!("The game is a draw!"),
-            GameState::Playing => (),
+            GameState::PlayerWon => {
+                println!("Player wins!");
+                return;
+            },
+            GameState::ComputerWon => {
+                println!("Computer wins!");
+                return;
+            },
+            GameState::Playing => ()
         }
     }
 }
@@ -292,9 +303,11 @@ fn main() {
     match user_choice {
         1 => {
             let mut game = Game::start_game();
+            println!("{:?}", game.state);
             while game.state == GameState::Playing {
                 game.play_turn();
             }
+            game.end_game();
         }
         2 => {
             println!("Exiting the game.");
