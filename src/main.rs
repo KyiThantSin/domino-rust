@@ -69,9 +69,39 @@ impl Game {
         let computer: Computer = Computer::new(computer_slice);
         let game = Game::new(player, computer);
 
-        println!("Starting Domino: {:?}", starting_domino);
+        println!("Starting Domino: {:?}", (starting_domino.0,starting_domino.1));
 
         game
+    }
+    
+    fn choose_domino(&mut self) {
+        loop {
+            println!("Your Doninoes:");
+            Domino::display_domino(&self.player.dominos);
+            println!("You have total {:?} dominoes left", Domino::count(&self.player.dominos));
+            println!("Your turn. Choose a domino to play:");
+
+            let mut player_input = String::new();
+            io::stdin()
+                .read_line(&mut player_input)
+                .expect("Failed to read input");
+
+            let chosen_index: usize = match player_input.trim().parse::<usize>() {
+                Ok(num) => num - 1, // users enter no starting from 1
+                Err(_) => {
+                    println!("Invalid input. Please enter a valid number.");
+                    continue;
+                }
+            };
+            
+            if chosen_index < self.player.dominos.len() {
+                let chosen_domino = self.player.remove_player_domino(chosen_index).unwrap();
+                println!("You Choose: {:?}", (chosen_domino.0, chosen_domino.1));
+                break;
+            } else {
+                println!("Invalid move. Try again.");
+            }
+        }
     }
 
     fn check_victory_conditions(&self) -> GameState {
@@ -187,16 +217,12 @@ fn main() {
 
     match user_choice {
         1 => {
-            let game = Game::start_game();
-
-            // println!("Player's hand:");
-            // Domino::display_domino(&game.player.dominos);
-            // println!("Player Count: {:?}", Domino::count(&game.player.dominos));
+            let mut game = Game::start_game();
+            game.choose_domino();
 
             // println!("Computer's hand:");
             // Domino::display_domino(&game.computer.dominos);
             // println!("Computer Count: {:?}", Domino::count(&game.computer.dominos));
-
         }
         2 => {
             println!("Exiting the game.");
