@@ -56,7 +56,7 @@ impl Game {
         }
 
         // Shuffle
-        let mut random = rand::thread_rng();
+        let mut random: rand::rngs::ThreadRng = rand::thread_rng();
         domino_set_in_color.shuffle(&mut random);
 
         let mid_point: usize = (domino_set_in_color.len() - 1) / 2;
@@ -109,9 +109,9 @@ impl Game {
             };
             
             if chosen_index < self.player.dominos.len() {
-                let chosen_domino = self.player.dominos.remove(chosen_index);
+                let chosen_domino: Domino = self.player.dominos.remove(chosen_index);
                 if self.is_valid_move(&chosen_domino) {
-                    println!("You played: {:?}", chosen_domino);
+                    println!("You Choose: {:?}", chosen_domino);
                     self.starting_domino = chosen_domino;
                     println!(
                         "Starting Domino: {:?}", (&self.starting_domino.0,&self.starting_domino.1)
@@ -134,10 +134,34 @@ impl Game {
 
     fn computer_choose_domino(&mut self) {
         if !self.computer.dominos.is_empty() {
-            // let mut rng = rand::thread_rng();
-            // let chosen_index = rng.gen_range(0..self.computer.dominos.len());
-            // let chosen_domino = self.computer.remove_computer_domino(chosen_index).unwrap();
-            // println!("Computer played: {:?}", (chosen_domino.0, chosen_domino.1));
+            let mut valid_dominos = Vec::new();
+
+            for domino in &self.computer.dominos {
+                if self.is_valid_move(domino) {
+                    valid_dominos.push(domino.clone());
+                }
+            }
+        
+            if valid_dominos.is_empty() {
+                println!("Computer has no valid moves.");
+                GameState::PlayerWon;
+                return;
+            }     
+            // println!("valid {:?}", &valid_dominos);
+            let mut random = rand::thread_rng();
+            let random_index: usize = rand::Rng::gen_range(&mut random, 0..valid_dominos.len());
+            
+            //remove from computer
+            self.computer.dominos.remove(random_index);
+            
+            //get from valid set
+            let chosen_domino: &Domino = valid_dominos.get(random_index).unwrap();
+            self.starting_domino = chosen_domino.clone();
+            println!("Computer Choose:  {:?}", (&chosen_domino.0, &chosen_domino.1));
+            println!("Computer have total: {:?} dominos left", Domino::count(&self.computer.dominos));
+            println!(
+                "Starting Domino: {:?}", (&self.starting_domino.0,&self.starting_domino.1)
+            );
         }
     }
 
@@ -170,14 +194,6 @@ impl Player {
     fn new(dominos: Vec<Domino>) -> Self {
         Self { dominos }
     }
-
-    fn remove_player_domino(&mut self, number: usize) -> Option<Domino> {
-        if number < self.dominos.len() {
-            Some(self.dominos.remove(number))
-        } else {
-            None
-        }
-    }
 }
 
 #[derive(Debug)]
@@ -188,14 +204,6 @@ struct Computer {
 impl Computer {
     fn new(dominos: Vec<Domino>) -> Self {
         Self { dominos }
-    }
-
-    fn remove_computer_domino(&mut self, number: usize) -> Option<Domino> {
-        if number < self.dominos.len() {
-            Some(self.dominos.remove(number))
-        } else {
-            None
-        }
     }
 }
 
