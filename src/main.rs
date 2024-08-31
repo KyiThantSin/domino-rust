@@ -9,7 +9,6 @@ enum Color {
     Red,
     Yellow,
 }
-
 #[derive(Debug, PartialEq, Clone)]
 enum GameState {
     Playing,
@@ -163,35 +162,46 @@ impl Game {
     fn computer_choose_domino(&mut self) {
         if !self.computer.dominos.is_empty() {
             let mut valid_dominos = Vec::new();
-
+    
+            // find valid dominos
             for domino in &self.computer.dominos {
                 if self.is_valid_move(domino) {
                     valid_dominos.push(domino.clone());
                 }
             }
-
+    
             if valid_dominos.is_empty() {
                 println!("Computer has no valid Dominoes to choose.");
                 self.state = GameState::PlayerWon;
                 self.end_game();
                 return;
             }
-            // println!("valid {:?}", &valid_dominos);
+    
+            // chooese random valid domino 
             let mut random = rand::thread_rng();
             let random_index: usize = rand::Rng::gen_range(&mut random, 0..valid_dominos.len());
-
-            //remove from computer
-            self.computer.dominos.remove(random_index);
-
-            //get from valid set
-            let chosen_domino: &Domino = valid_dominos.get(random_index).unwrap();
+            let chosen_domino: &Domino = &valid_dominos[random_index];
+    
+            let mut chosen_index = None;
+            for (index, domino) in self.computer.dominos.iter().enumerate() {
+                if domino == chosen_domino {
+                    chosen_index = Some(index);
+                    break;
+                }
+            }
+    
+            // remove
+            let chosen_index = chosen_index.expect("Chosen domino not found");
+            self.computer.dominos.remove(chosen_index);
+    
+            // update 
             self.starting_domino = chosen_domino.clone();
             println!(
                 "Computer Choose:  {:?}",
                 (&chosen_domino.0, &chosen_domino.1)
             );
             println!(
-                "Computer have total: {:?} dominos left",
+                "Computer has total: {:?} dominos left",
                 Domino::count(&self.computer.dominos)
             );
             println!(
@@ -200,7 +210,7 @@ impl Game {
             );
         }
     }
-
+    
     fn check_victory_conditions(&self) -> GameState {
         if self.player.dominos.is_empty() {
             GameState::PlayerWon
@@ -247,8 +257,7 @@ impl Computer {
         Self { dominos }
     }
 }
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 struct Domino(Color, Color);
 
 impl Domino {
