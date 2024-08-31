@@ -1,7 +1,8 @@
 # Domino Game Implementation Details
 
 ## Enums
-**Color Description**: Represents the color of a domino. It includes five possible values: White, Blue, Green, Red, and Yellow.
+### `Color`
+- **Description**: Represents the color of a domino. It includes five possible values: White, Blue, Green, Red, and Yellow.
 
 ## Variants
 - White
@@ -11,14 +12,15 @@
 - Yellow
 
 ## Structures
-- **Domino Description**: Represents a domino tile with two colors.
+### `Domino`
+- **Description**: Represents a domino tile with two colors.
 
-## Fields
+### Fields
 
 - **0**: The color on the left side of the domino.
 - **1**: The color on the right side of the domino.
 
-## Methods
+### Methods
 
 - **`new(left: Color, right: Color) -> Self`**: Creates a new Domino with the specified colors for the left and right sides.
 - **`generate_color_code(number: i32) -> Color`**: Generates a Color based on an integer input. The integer maps to a specific color.
@@ -29,11 +31,11 @@
 ### `Player`
 - **Description**: Represents a player in the game with a set of dominoes.
 
-## Fields
+### Fields
 
 - **dominos**: A vector containing the player's dominoes.
 
-## Methods
+### Methods
 
 - **`new(dominos: Vec<Domino>) -> Self`**: Creates a new Player with the specified set of dominoes.
 
@@ -44,7 +46,7 @@
 
 - **dominos**: A vector containing the computer's dominoes.
   
-## Methods
+### Methods
 
 - **`new(dominos: Vec<Domino>) -> Self`**: Creates a new Computer with the specified set of dominoes.
   
@@ -69,7 +71,7 @@
 - **`check_victory_conditions(&self) -> GameState`**: Checks if the game is won by either the player or computer.
 - **`end_game(&self)`**: Displays the game result based on the final state.
 
-## Functions
+### Functions
 
 ### `print_status`
 - **Description**: Displays the current status of the game (e.g., player and computer's remaining dominoes).
